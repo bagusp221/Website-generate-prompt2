@@ -13,6 +13,20 @@ app.use(express.json());
 
 const ai = process.env.GEMINI_API_KEY ? new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY }) : null;
 
+app.options("/api/generate", (req, res) => {
+  res.header("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type");
+  res.sendStatus(200);
+});
+
+app.all("/api/generate", (req, res, next) => {
+  console.log(`[API REQUEST] ${req.method} ${req.url}`);
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: `Method ${req.method} not allowed` });
+  }
+  next();
+});
+
 app.post("/api/generate", async (req, res) => {
   const apiKey = process.env.GEMINI_API_KEY;
   console.log("GEMINI API KEY STATUS:", apiKey ? (apiKey === "MY_GEMINI_API_KEY" ? "PLACEHOLDER" : "PRESENT") : "MISSING");
